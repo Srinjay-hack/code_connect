@@ -31,4 +31,4 @@ export default {
 
 
 # Appwrite to add Auth, DBs, Functions and Storage to the product and build any application.
-[Appwrite] (https://appwrite.io/)
+[Appwrite](https://appwrite.io/)
