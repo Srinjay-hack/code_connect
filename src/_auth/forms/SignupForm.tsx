@@ -14,9 +14,12 @@ import { Input } from "@/components/ui/input"
 import { SignUpValidation } from '@/lib/validation'
 import Loader from '@/components/shared/Loader'
 import { Link } from 'react-router-dom'
-import { createUserAccount } from '@/lib/appwrite/api'
+import { useToast } from "@/components/ui/use-toast"
+import { useCreateUserAccount,useSignInAccount } from '@/lib/react-query/queriesAndMutation'
 
 const SignupForm = () => {
+    const { toast } = useToast()
+
     const form = useForm<z.infer<typeof SignUpValidation>>({
         resolver: zodResolver(SignUpValidation),
         defaultValues: {
@@ -26,14 +29,29 @@ const SignupForm = () => {
             password:""
         },
     })
-    const isLoading = false;
 
 
+    const {mutateAsync:createUserAccount,isLoading:isCreatingAccount} = useCreateUserAccount();
+    const {mutateAsync:useSignInAccount,} = useSignInAccount();
     // use of database here appwrite to store values
     // 2. Define a submit handler.
     async function onSubmit(values: z.infer<typeof SignUpValidation>) {
         const newUser = await createUserAccount(values);
-        console.log(newUser);
+        if(!newUser){
+            return toast({
+                title:"Sign UP failed, Please try again"
+            });
+        }
+        const session = await useSignInAccount({
+            email:values.email,
+            password:values.password,
+        });
+        if(!session){
+            return toast({
+                title:"Sign in failed, Please try again"
+            });
+        }
+
     }
 
     return (
